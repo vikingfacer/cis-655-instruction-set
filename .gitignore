@@ -1,0 +1,5 @@
+*.envrc
+*.lock
+flake.nix
+.direnv/
+*/build/
