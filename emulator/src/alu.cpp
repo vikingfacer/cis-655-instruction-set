@@ -3,6 +3,7 @@
 #include <map>
 #include <functional>
 #include <vector>
+#include <iomanip>
 
 class ALU
 {
@@ -55,9 +56,9 @@ public:
         functions[11] = [this](std::string op1i, std::string op2i, std::string dest)
         { return sci(op1i, op2i, dest); };
         functions[12] = [this](std::string op1, std::string op2, std::string dest)
-        { return luo(op1, op2, dest); };
+        { return lo(op1, op2, dest); };
         functions[13] = [this](std::string op1, std::string op2, std::string dest)
-        { return suo(op1, op2, dest); };
+        { return so(op1, op2, dest); };
         functions[14] = [this](std::string j1i, std::string j2i, std::string j3i)
         { return jb(j1i, j2i, j3i); };
     }
@@ -172,7 +173,7 @@ public:
 
     // load using offset
     // opcode 1100
-    bool luo(std::string op1, std::string op2, std::string destination)
+    bool lo(std::string op1, std::string op2, std::string destination)
     {
         memory[M[destination]] = memory[M[op1]] + memory[M[op2]];
         return true;
@@ -180,7 +181,7 @@ public:
 
     // store using offset
     // opcode 1101
-    bool suo(std::string op1, std::string op2, std::string destination)
+    bool so(std::string op1, std::string op2, std::string destination)
     {
         memory[M[op1]] = memory[M[op2]];
         return true;
@@ -201,6 +202,28 @@ public:
         {
             std::cout << c << " : " << x << std::endl;
             c++;
+        }
+    }
+
+    void printInColumns(const std::vector<int> &list, int columns)
+    {
+        int rows = (list.size() + columns - 1) / columns; // Calculate number of rows needed
+
+        // Print the elements in multiple columns
+        for (int i = 0; i < rows; ++i)
+        {
+            for (int j = 0; j < columns; ++j)
+            {
+                int index = i + j * rows;
+                if (index < list.size())
+                {
+                    // Print index with leading zeros
+                    std::cout << std::setfill('0') << std::setw(2) << index << " : ";
+                    // Print value with alignment
+                    std::cout << std::setw(10) << list[index] << " | ";
+                }
+            }
+            std::cout << std::endl;
         }
     }
 
@@ -228,22 +251,68 @@ public:
         {
             std::cout << "Error: Invalid opcode." << std::endl;
         }
-        printMemory();
+        // printMemory();
+        printInColumns(memory, 4);
     }
 };
 
 int main()
 {
 
-    const int memSize = 16;
+    const int memSize = 48;
     std::vector<int> mainMemory(memSize, 0);
 
     ALU alu(mainMemory, memSize);
 
     // Example: Execute am with opcode 0
-    alu.execute("1010", "2", "3", "M1");
-    alu.execute("1010", "1", "2", "M2");
-    alu.execute("0000", "M1", "M2", "M3"); // am operation (add mem-mem)
+    alu.execute("1010", "0", "8", "M0");
+    alu.execute("1010", "0", "8", "M1");
+    alu.execute("1010", "0", "7", "M2");
+    alu.execute("1010", "0", "11", "M3");
+    alu.execute("1010", "0", "10", "M4");
+    alu.execute("1010", "0", "4", "M5");
+    alu.execute("1010", "0", "1", "M6");
+    alu.execute("1010", "0", "0", "M7");
+    alu.execute("1010", "0", "1", "M8");
+    alu.execute("1010", "0", "1", "M9");
+
+    alu.execute("0000", "M9", "M6", "M15");  // am operation (add mem-mem)
+    alu.execute("1100", "M15", "M7", "M10"); // lo operation (load using offset)
+    // sltm m10 m0 m11
+    alu.execute("0101", "M10", "M0", "M11"); // sltm operation (set less than mem-mem)
+    // bnem m11 m8 2
+    alu.execute("0100", "M11", "M8", "2"); // bnem operation (branch if not equal mem-mem)
+    // lo m9 m6 m0
+    alu.execute("1100", "M9", "M6", "M0"); // lo operation (load using offset)
+
+    // sltm m1 m10 m11
+    alu.execute("0101", "M1", "M10", "M11"); // sltm operation (set less than mem-mem)
+    // bnem m11 m8 2
+    alu.execute("0100", "M11", "M8", "2"); // bnem operation (branch if not equal mem-mem)
+    // lo m9 m6 m1
+    alu.execute("1100", "M9", "M6", "M1"); // lo operation (load using offset)
+
+    // ai m6 1 m6
+    alu.execute("0110", "M6", "1", "M6"); // ai operation (add immediate)
+    // sltm m6 m5 m11
+    alu.execute("0101", "M6", "M5", "M11"); // sltm operation (set less than mem-mem)
+    // bnem m11 m8 2
+    alu.execute("0100", "M11", "M8", "2"); // bnem operation (branch if not equal mem-mem)
+    // jb 0 0 11
+    alu.execute("1110", "0", "0", "11"); // jb operation (jump back)
+
+    // lci 0 15 m12
+    alu.execute("1010", "0", "15", "M12"); // lci operation (load constant immediate)
+    // lci 0 15 m13
+    alu.execute("1010", "0", "15", "M13"); // lci operation (load constant immediate)
+    // ai m12 1 m12
+    alu.execute("0110", "M12", "1", "M12"); // ai operation (add immediate)
+    // ai m13 2 m13
+    alu.execute("0110", "M13", "2", "M13"); // ai operation (add immediate)
+    // so m12 m7 m0
+    alu.execute("1101", "M12", "M7", "M0"); // so operation (store using offset)
+    // so m13 m7 m1
+    alu.execute("1101", "M13", "M7", "M1"); // so operation (store using offset)
 
     return 0;
 }
