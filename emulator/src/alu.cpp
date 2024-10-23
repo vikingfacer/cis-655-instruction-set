@@ -183,7 +183,7 @@ void ALU::printMemory()
     }
 }
 
-void ALU::printInColumns(const std::vector<uint16_t> &list, int columns)
+void ALU::printInColumnsBinary(const std::vector<uint16_t> &list, int columns)
 {
     int rows = (list.size() + columns - 1) / columns; // Calculate number of rows needed
 
@@ -204,7 +204,7 @@ void ALU::printInColumns(const std::vector<uint16_t> &list, int columns)
     }
 }
 
-void ALU::printInColumnsInt(const std::vector<uint16_t> &list, int columns)
+void ALU::printInColumnsDecimal(const std::vector<uint16_t> &list, int columns)
 {
     int rows = (list.size() + columns - 1) / columns; // Calculate number of rows needed
 
@@ -250,7 +250,7 @@ void ALU::printEXECUTING(uint16_t opcode)
 }
 
 // execute(0000 0000 0000 0000)
-int ALU::execute(uint16_t opcode)
+int ALU::execute(uint16_t opcode, bool print)
 {
     uint8_t op = (opcode >> 12) & 0x0F; // Extract bits [15:12]
     uint8_t op1 = (opcode >> 8) & 0x0F; // Extract bits [11:8]
@@ -276,11 +276,15 @@ int ALU::execute(uint16_t opcode)
     {
         std::cout << "Error: Invalid opcode." << std::endl;
     }
-    printOPCODE(opcode);
-    // printEXECUTING(opcode);
-    printInColumnsInt(memory, 4);
-    // printInColumns(memory, 4);
-    printPC();
+    if (print)
+    {
+        printOPCODE(opcode);
+        // printEXECUTING(opcode);
+        printInColumnsDecimal(memory, 4);
+        // printInColumnsBinary(memory, 4);
+        printPC();
+    }
+
     return pc;
 }
 

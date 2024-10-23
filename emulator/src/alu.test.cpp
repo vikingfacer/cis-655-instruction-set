@@ -48,7 +48,7 @@ int main()
         mainMemory[alu.getPC() + i] = opcodes[i];
     }
 
-    alu.printInColumns(mainMemory, 4);
+    alu.printInColumnsBinary(mainMemory, 4);
 
     std::cout << "pc from " << pcInit << " to " << (pcInit + opcodes.size()) << std::endl;
     while (alu.getPC() < (pcInit + opcodes.size()))
@@ -57,7 +57,7 @@ int main()
         std::cout << "Press enter to continue" << std::endl;
         std::string input;
         std::getline(std::cin, input);
-        alu.execute(mainMemory[alu.getPC()]);
+        alu.execute(mainMemory[alu.getPC()], true);
     }
     return 0;
 }
