@@ -3,3 +3,6 @@
 flake.nix
 .direnv/
 */build/
+emulator/src/alu
+.vscode/settings.json
+.vscode/c_cpp_properties.json
