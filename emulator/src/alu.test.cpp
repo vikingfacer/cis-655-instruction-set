@@ -34,7 +34,8 @@ int main()
         0b1010001011111101, // lci 2, 15, M13
         0b1101110001110000, // so M12, M7, M0
         0b1101110101110001, // so M13, M7, M1
-        0b1001000000000111};
+        // 0b1001000000000111  // di M0, 0, M11 // to check if the program halts
+    };
 
     int pcInit = 32;
     const int memSize = 64;
@@ -64,6 +65,7 @@ int main()
 
         alu.execute(mainMemory[alu.getPC()]);
 
+        // alu.printInColumnsDecimal(mainMemory, 4);
         alu.printInColumnsBinary(mainMemory, 4);
         alu.printPC();
     }

@@ -264,7 +264,7 @@ int ALU::execute(uint16_t opcode)
     }
     else
     {
-        throw std::invalid_argument("Error: Invalid opcode.");
+        throw std::invalid_argument("Error: Invalid opcode." + std::to_string(op));
     }
 
     return pc;
