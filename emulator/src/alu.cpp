@@ -130,6 +130,7 @@ public:
     {
         if (memory[op2] == 0)
         {
+            throw std::invalid_argument("Error: Division by zero.");
             return 0;
         }
         memory[op3] = memory[op1] / memory[op2];
@@ -188,7 +189,7 @@ public:
     {
         if (op2 == 0)
         {
-            return 0;
+            throw std::invalid_argument("Error: Division by zero.");
         }
         memory[op3] = memory[op1] / op2;
         return 1;
@@ -311,7 +312,7 @@ public:
     }
 
     // execute(0000 0000 0000 0000)
-    void execute(uint16_t opcode)
+    int execute(uint16_t opcode)
     {
         uint8_t op = (opcode >> 12) & 0x0F; // Extract bits [15:12]
         uint8_t op1 = (opcode >> 8) & 0x0F; // Extract bits [11:8]
@@ -320,14 +321,17 @@ public:
 
         if (op >= 0 && op < functions.size())
         {
-            int inc = functions[op](op1, op2, op3);
-            if (inc)
+            try
             {
-                pc += inc;
+                int inc = functions[op](op1, op2, op3);
+                if (inc)
+                {
+                    pc += inc;
+                }
             }
-            else
+            catch (const std::exception &e)
             {
-                std::cout << "Error: Operation failed." << std::endl;
+                std::cerr << e.what() << '\n';
             }
         }
         else
@@ -339,6 +343,7 @@ public:
         printInColumnsInt(memory, 4);
         // printInColumns(memory, 4);
         printPC();
+        return pc;
     }
 
     void setPC(int newPC)
