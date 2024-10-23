@@ -284,6 +284,16 @@ public:
         printInColumns(memory, 8);
         printPC();
     }
+
+    void setPC(int newPC)
+    {
+        pc = newPC;
+    }
+
+    int getPC()
+    {
+        return pc;
+    }
 };
 
 int main()
