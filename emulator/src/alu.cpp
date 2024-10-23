@@ -57,9 +57,12 @@ class ALU
     std::vector<uint16_t> &memory;
 
 public:
-    ALU(std::vector<uint16_t> &mem, int pcInit) : memory(mem), pc(pcInit)
+    ALU(std::vector<uint16_t> &mem, int pcInit = 32) : memory(mem), pc(pcInit)
     {
-        // not sure if we need memSize
+        if (mem.empty())
+        {
+            mem = std::vector<uint16_t>(64, 0);
+        }
 
         // Initialize the function array with 15 opcodes
         functions.resize(15);
@@ -255,7 +258,7 @@ public:
                 {
 
                     // print the 16 bit number in binary
-                    std::cout << index << " : " << std::bitset<16>(list[index]) << " | ";
+                    std::cout << std::setw(3) << index << " : " << std::setw(6) << std::bitset<16>(list[index]) << " | ";
                 }
             }
             std::cout << std::endl;
@@ -287,6 +290,26 @@ public:
         std::cout << "PC: " << pc << std::endl;
     }
 
+    void printOPCODE(uint16_t opcode)
+    {
+        uint8_t op = (opcode >> 12) & 0x0F; // Extract bits [15:12]
+        uint8_t op1 = (opcode >> 8) & 0x0F; // Extract bits [11:8]
+        uint8_t op2 = (opcode >> 4) & 0x0F; // Extract bits [7:4]
+        uint8_t op3 = opcode & 0x0F;
+
+        std::cout << "OPCODE: " << std::bitset<4>(op) << " " << std::bitset<4>(op1) << " " << std::bitset<4>(op2) << " " << std::bitset<4>(op3) << std::endl;
+    }
+
+    void printEXECUTING(uint16_t opcode)
+    {
+        uint8_t op = (opcode >> 12) & 0x0F; // Extract bits [15:12]
+        uint8_t op1 = (opcode >> 8) & 0x0F; // Extract bits [11:8]
+        uint8_t op2 = (opcode >> 4) & 0x0F; // Extract bits [7:4]
+        uint8_t op3 = opcode & 0x0F;
+
+        std::cout << "EXECUTING: " << OPCODES[op] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << MEMORY_REGISTERS[op3] << std::endl;
+    }
+
     // execute(0000 0000 0000 0000)
     void execute(uint16_t opcode)
     {
@@ -294,10 +317,6 @@ public:
         uint8_t op1 = (opcode >> 8) & 0x0F; // Extract bits [11:8]
         uint8_t op2 = (opcode >> 4) & 0x0F; // Extract bits [7:4]
         uint8_t op3 = opcode & 0x0F;
-
-        // print opcode, op1, op2, op3
-        std::cout << "Executing: " << std::bitset<4>(op) << " " << std::bitset<4>(op1) << " " << std::bitset<4>(op2) << " " << std::bitset<4>(op3) << std::endl;
-        // std::cout << "Executing: " << OPCODES[op] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << MEMORY_REGISTERS[op3] << std::endl;
 
         if (op >= 0 && op < functions.size())
         {
@@ -315,7 +334,10 @@ public:
         {
             std::cout << "Error: Invalid opcode." << std::endl;
         }
+        printOPCODE(opcode);
+        // printEXECUTING(opcode);
         printInColumnsInt(memory, 4);
+        // printInColumns(memory, 4);
         printPC();
     }
 
@@ -384,9 +406,9 @@ int main()
     while (alu.getPC() < (pcInit + opcodes.size()))
     {
         // wait for enter key
+        std::cout << "Press enter to continue" << std::endl;
         std::string input;
         std::getline(std::cin, input);
-
         alu.execute(mainMemory[alu.getPC()]);
     }
     return 0;
