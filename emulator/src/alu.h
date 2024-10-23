@@ -42,7 +42,7 @@ public:
     void printPC();
     void printOPCODE(uint16_t opcode);
     void printEXECUTING(uint16_t opcode);
-    int execute(uint16_t opcode, bool print = false);
+    int execute(uint16_t opcode);
 
     void setPC(int newPC);
     int getPC();

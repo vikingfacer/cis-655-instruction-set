@@ -34,6 +34,7 @@ int main()
         0b1010001011111101, // lci 2, 15, M13
         0b1101110001110000, // so M12, M7, M0
         0b1101110101110001, // so M13, M7, M1
+        // 0b1001000000000111  // di M0, 0, M11 // to check if the program halts
     };
 
     int pcInit = 32;
@@ -48,16 +49,25 @@ int main()
         mainMemory[alu.getPC() + i] = opcodes[i];
     }
 
-    alu.printInColumnsBinary(mainMemory, 4);
+    std::cout << "pc from " << pcInit << " to " << (pcInit + opcodes.size() - 1) << std::endl;
 
-    std::cout << "pc from " << pcInit << " to " << (pcInit + opcodes.size()) << std::endl;
+    alu.printInColumnsBinary(mainMemory, 4);
+    alu.printPC();
+
     while (alu.getPC() < (pcInit + opcodes.size()))
     {
         // wait for enter key
         std::cout << "Press enter to continue" << std::endl;
         std::string input;
         std::getline(std::cin, input);
-        alu.execute(mainMemory[alu.getPC()], true);
+
+        alu.printOPCODE(mainMemory[alu.getPC()]);
+
+        alu.execute(mainMemory[alu.getPC()]);
+
+        // alu.printInColumnsDecimal(mainMemory, 4);
+        alu.printInColumnsBinary(mainMemory, 4);
+        alu.printPC();
     }
     return 0;
 }

@@ -68,8 +68,8 @@ int ALU::dm(uint8_t op1, uint8_t op2, uint8_t op3)
 {
     if (memory[op2] == 0)
     {
-        throw std::invalid_argument("Error: Division by zero.");
-        return 0;
+        std::string op = "dm " + std::to_string(op1) + " " + std::to_string(op2) + " " + std::to_string(op3);
+        throw std::invalid_argument("Error: Division by zero.\nOPCODE: " + op);
     }
     memory[op3] = memory[op1] / memory[op2];
     return 1;
@@ -127,7 +127,8 @@ int ALU::di(uint8_t op1, uint8_t op2, uint8_t op3)
 {
     if (op2 == 0)
     {
-        throw std::invalid_argument("Error: Division by zero.");
+        std::string op = "di " + std::to_string(op1) + " " + std::to_string(op2) + " " + std::to_string(op3);
+        throw std::invalid_argument("Error: Division by zero.\nOPCODE: " + op);
     }
     memory[op3] = memory[op1] / op2;
     return 1;
@@ -250,7 +251,7 @@ void ALU::printEXECUTING(uint16_t opcode)
 }
 
 // execute(0000 0000 0000 0000)
-int ALU::execute(uint16_t opcode, bool print)
+int ALU::execute(uint16_t opcode)
 {
     uint8_t op = (opcode >> 12) & 0x0F; // Extract bits [15:12]
     uint8_t op1 = (opcode >> 8) & 0x0F; // Extract bits [11:8]
@@ -259,30 +260,11 @@ int ALU::execute(uint16_t opcode, bool print)
 
     if (op >= 0 && op < functions.size())
     {
-        try
-        {
-            int inc = functions[op](op1, op2, op3);
-            if (inc)
-            {
-                pc += inc;
-            }
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << e.what() << '\n';
-        }
+        pc += functions[op](op1, op2, op3);
     }
     else
     {
-        std::cout << "Error: Invalid opcode." << std::endl;
-    }
-    if (print)
-    {
-        printOPCODE(opcode);
-        // printEXECUTING(opcode);
-        printInColumnsDecimal(memory, 4);
-        // printInColumnsBinary(memory, 4);
-        printPC();
+        throw std::invalid_argument("Error: Invalid opcode." + std::to_string(op));
     }
 
     return pc;
