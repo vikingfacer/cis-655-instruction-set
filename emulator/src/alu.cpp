@@ -274,7 +274,6 @@ public:
                 int index = i + j * rows;
                 if (index < list.size())
                 {
-
                     // print the 16 bit number in binary
                     std::cout << std::setw(3) << index << " : " << std::setw(6) << list[index] << " | ";
                 }
@@ -298,7 +297,7 @@ public:
 
         // print opcode, op1, op2, op3
         std::cout << "Executing: " << std::bitset<4>(op) << " " << std::bitset<4>(op1) << " " << std::bitset<4>(op2) << " " << std::bitset<4>(op3) << std::endl;
-        std::cout << "Executing: " << OPCODES[op] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << MEMORY_REGISTERS[op3] << std::endl;
+        // std::cout << "Executing: " << OPCODES[op] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << MEMORY_REGISTERS[op3] << std::endl;
 
         if (op >= 0 && op < functions.size())
         {
