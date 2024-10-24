@@ -40,9 +40,9 @@ public:
     void printInColumnsBinary(const std::vector<uint16_t> &list, int columns);
     void printInColumnsDecimal(const std::vector<uint16_t> &list, int columns);
     void printPC();
-    void printOPCODE(uint16_t opcode);
-    void printEXECUTING(uint16_t opcode);
-    int execute(uint16_t opcode);
+    void printInstruction(uint16_t instruction);
+    void printExecuting(uint16_t instruction);
+    int execute(uint16_t instruction);
 
     void setPC(int newPC);
     int getPC();

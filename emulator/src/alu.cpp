@@ -230,24 +230,24 @@ void ALU::printPC()
     std::cout << "PC: " << pc << std::endl;
 }
 
-void ALU::printOPCODE(uint16_t opcode)
+void ALU::printInstruction(uint16_t instruction)
 {
-    uint8_t op = (opcode >> 12) & 0x0F; // Extract bits [15:12]
-    uint8_t op1 = (opcode >> 8) & 0x0F; // Extract bits [11:8]
-    uint8_t op2 = (opcode >> 4) & 0x0F; // Extract bits [7:4]
-    uint8_t op3 = opcode & 0x0F;
+    uint8_t opcode = (instruction >> 12) & 0x0F; // Extract bits [15:12]
+    uint8_t op1 = (instruction >> 8) & 0x0F;     // Extract bits [11:8]
+    uint8_t op2 = (instruction >> 4) & 0x0F;     // Extract bits [7:4]
+    uint8_t op3 = instruction & 0x0F;
 
-    std::cout << "OPCODE: " << std::bitset<4>(op) << " " << std::bitset<4>(op1) << " " << std::bitset<4>(op2) << " " << std::bitset<4>(op3) << std::endl;
+    std::cout << "OPCODE: " << std::bitset<4>(opcode) << " " << std::bitset<4>(op1) << " " << std::bitset<4>(op2) << " " << std::bitset<4>(op3) << std::endl;
 }
 
-void ALU::printEXECUTING(uint16_t opcode)
+void ALU::printExecuting(uint16_t instruction)
 {
-    uint8_t op = (opcode >> 12) & 0x0F; // Extract bits [15:12]
-    uint8_t op1 = (opcode >> 8) & 0x0F; // Extract bits [11:8]
-    uint8_t op2 = (opcode >> 4) & 0x0F; // Extract bits [7:4]
-    uint8_t op3 = opcode & 0x0F;
+    uint8_t opcode = (instruction >> 12) & 0x0F; // Extract bits [15:12]
+    uint8_t op1 = (instruction >> 8) & 0x0F;     // Extract bits [11:8]
+    uint8_t op2 = (instruction >> 4) & 0x0F;     // Extract bits [7:4]
+    uint8_t op3 = instruction & 0x0F;
 
-    std::cout << "EXECUTING: " << OPCODES[op] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << MEMORY_REGISTERS[op3] << std::endl;
+    std::cout << "EXECUTING: " << OPCODES[opcode] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << MEMORY_REGISTERS[op3] << std::endl;
 }
 
 // execute(0000 0000 0000 0000)
