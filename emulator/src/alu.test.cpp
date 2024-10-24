@@ -62,6 +62,7 @@ int main()
         std::getline(std::cin, input);
 
         alu.printInstruction(mainMemory[alu.getPC()]);
+        alu.printExecuting(mainMemory[alu.getPC()]);
 
         alu.execute(mainMemory[alu.getPC()]);
 

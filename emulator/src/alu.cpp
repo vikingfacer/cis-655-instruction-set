@@ -147,7 +147,7 @@ int ALU::lci(uint8_t op1, uint8_t op2, uint8_t op3)
 int ALU::sci(uint8_t op1, uint8_t op2, uint8_t op3)
 {
     // is this right?
-    memory[op3] = op1 + op2;
+    memory[op3] = op1 - op2;
     return 1;
 }
 
@@ -246,6 +246,27 @@ void ALU::printExecuting(uint16_t instruction)
     uint8_t op1 = (instruction >> 8) & 0x0F;     // Extract bits [11:8]
     uint8_t op2 = (instruction >> 4) & 0x0F;     // Extract bits [7:4]
     uint8_t op3 = instruction & 0x0F;
+
+    if (opcode == 0b1110)
+    {
+        std::cout << "EXECUTING: " << OPCODES[opcode] << " " << std::to_string(op1) << " " << std::to_string(op2) << " " << std::to_string(op3) << std::endl;
+        return;
+    }
+    else if (opcode == 0b1010 || opcode == 0b1011)
+    {
+        std::cout << "EXECUTING: " << OPCODES[opcode] << " " << std::to_string(op1) << " " << std::to_string(op2) << " " << MEMORY_REGISTERS[op3] << std::endl;
+        return;
+    }
+    else if (opcode == 0b0110 || opcode == 0b0111 || opcode == 0b1000 || opcode == 0b1001)
+    {
+        std::cout << "EXECUTING: " << OPCODES[opcode] << " " << MEMORY_REGISTERS[op1] << " " << std::to_string(op2) << " " << MEMORY_REGISTERS[op3] << std::endl;
+        return;
+    }
+    else if (opcode == 0b0100)
+    {
+        std::cout << "EXECUTING: " << OPCODES[opcode] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << std::to_string(op3) << std::endl;
+        return;
+    }
 
     std::cout << "EXECUTING: " << OPCODES[opcode] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << MEMORY_REGISTERS[op3] << std::endl;
 }
