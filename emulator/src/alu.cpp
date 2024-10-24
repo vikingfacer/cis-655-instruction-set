@@ -251,20 +251,20 @@ void ALU::printEXECUTING(uint16_t opcode)
 }
 
 // execute(0000 0000 0000 0000)
-int ALU::execute(uint16_t opcode)
+int ALU::execute(uint16_t instruction)
 {
-    uint8_t op = (opcode >> 12) & 0x0F; // Extract bits [15:12]
-    uint8_t op1 = (opcode >> 8) & 0x0F; // Extract bits [11:8]
-    uint8_t op2 = (opcode >> 4) & 0x0F; // Extract bits [7:4]
-    uint8_t op3 = opcode & 0x0F;
+    uint8_t opcode = (instruction >> 12) & 0x0F; // Extract bits [15:12]
+    uint8_t op1 = (instruction >> 8) & 0x0F;     // Extract bits [11:8]
+    uint8_t op2 = (instruction >> 4) & 0x0F;     // Extract bits [7:4]
+    uint8_t op3 = instruction & 0x0F;
 
-    if (op >= 0 && op < functions.size())
+    if (opcode >= 0 && opcode < functions.size())
     {
-        pc += functions[op](op1, op2, op3);
+        pc += functions[opcode](op1, op2, op3);
     }
     else
     {
-        throw std::invalid_argument("Error: Invalid opcode." + std::to_string(op));
+        throw std::invalid_argument("Error: Invalid opcode." + std::to_string(opcode));
     }
 
     return pc;
