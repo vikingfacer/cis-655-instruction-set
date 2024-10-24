@@ -2,7 +2,7 @@
 
 int main()
 {
-    std::vector<uint16_t> opcodes = {
+    std::vector<uint16_t> instructions = {
         0b1010000010000000, // lci 0, 8, M0
         0b1010000010000001, // lci 0, 8, M1
         0b1010000001110010, // lci 0, 7, M2
@@ -44,24 +44,24 @@ int main()
     ALU alu(mainMemory, pcInit);
 
     // set the memory at the PC with the opcodes
-    for (int i = 0; i < opcodes.size(); i++)
+    for (int i = 0; i < instructions.size(); i++)
     {
-        mainMemory[alu.getPC() + i] = opcodes[i];
+        mainMemory[alu.getPC() + i] = instructions[i];
     }
 
-    std::cout << "pc from " << pcInit << " to " << (pcInit + opcodes.size() - 1) << std::endl;
+    std::cout << "pc from " << pcInit << " to " << (pcInit + instructions.size() - 1) << std::endl;
 
     alu.printInColumnsBinary(mainMemory, 4);
     alu.printPC();
 
-    while (alu.getPC() < (pcInit + opcodes.size()))
+    while (alu.getPC() < (pcInit + instructions.size()))
     {
         // wait for enter key
         std::cout << "Press enter to continue" << std::endl;
         std::string input;
         std::getline(std::cin, input);
 
-        alu.printOPCODE(mainMemory[alu.getPC()]);
+        alu.printInstruction(mainMemory[alu.getPC()]);
 
         alu.execute(mainMemory[alu.getPC()]);
 
