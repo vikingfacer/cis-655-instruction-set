@@ -1,13 +1,14 @@
 #ifndef ALU_H
 #define ALU_H
 
-#include <iostream>
-#include <string>
-#include <map>
-#include <functional>
-#include <vector>
-#include <iomanip>
 #include <bitset>
+#include <cstdint>
+#include <functional>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 
 class ALU
 {
