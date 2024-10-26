@@ -6,3 +6,6 @@ flake.nix
 emulator/src/alu
 .vscode/settings.json
 .vscode/c_cpp_properties.json
+/.vs/CMake Overview
+/.vs
+/CMakeSettings.json
