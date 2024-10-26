@@ -1,0 +1,51 @@
+// this program bubble sorts an array of 4 integers into ascending order
+
+lci 0, 1, m0			// base address of array 
+lci 0, 7, m1			// integer 1
+lci 0, 4, m2			// integer 2
+lci 0, 3, m3			// integer 3
+lci 2, 15, m4			// integer 4
+lci 0, 4, m5			// size of array
+lci 0, 0, m6			// outer loop idx
+lci 0, 0, m7			// logic 0
+lci 0, 1, m8			// logic 1
+lci 0, 0, m9			// inner loop idx
+
+// outer for loop starts
+// inner for loop starts immediately
+am m0, m9, m15			// calculate address of current element in inner loop
+ai m15, 1, m14			// calculate address of current element + 1 in inner loop
+lo m15, m7, m10			// load current element in inner loop
+lo m14, m7, m11			// load current element + 1 in inner loop
+
+sltm m11, m10, m12		// compare consecutive elements
+bnem m12, m8, 3			// skip swap if current element already less than
+so m15, m7, m11			// swap current element and current element + 1
+so m14, m7, m10			// swap current element and current element + 1
+
+ai m9, 1, m9			// increment inner idx
+sm m5, m6, m13			// calculate idx have to go up to; get smaller as push greatest elements to the right
+si m13, 1, m13			
+sltm m9, m13, m12		// loop until greatest element is pushed to the right
+bnem m12, m8, 2
+jb 0, 0, 13
+
+ai m6, 1, m6			// increment outer idx
+si m5, 1, m13			// outer idx just has to be less than size - 1 so can compare 2 elements
+sltm m6, m13, m12		// loop until all greatest elements are pushed to the right
+bnem m12, m8, 2
+jb 0, 4, 15
+
+// nested for loops ended so array is sorted; save it
+lci 0, 0, m6			// start a new idx to save array
+lci 1, 15, m15			// calculate base address of sorted array to save
+
+// for loop to save array starts here
+am m15, m6, m14			// calculate address of stored array
+am m0, m6, m13			// calcuate address of array in direct addressable memory
+lo m13, m7, m11			// array element to save
+so m14, m7, m11			// save array element
+ai m6, 1, m6			// increment idx
+sltm m6, m5, m12		// loop until all sorted array elements saved
+bnem m12, m8, 2
+jb 0, 0, 7
