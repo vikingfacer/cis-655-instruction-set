@@ -7,6 +7,7 @@
 std::string delimiter = ",";
 
 std::vector<std::string> Parser::parse(std::ifstream &in) {
+    std::vector<std::string> outputs;
     while(!in.eof()) {
         std::string token;
         std::vector<std::string> tokens;
@@ -19,4 +20,5 @@ std::vector<std::string> Parser::parse(std::ifstream &in) {
 
         // pass tokens to decoder 
     }
+    return outputs;
 }

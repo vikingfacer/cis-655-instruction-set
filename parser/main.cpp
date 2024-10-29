@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
     std::string inputFileName = argv[1];
     std::ifstream inputStream(inputFileName);
     if (!inputStream.is_open()) {
-        std::cout << "Faiced to open file." << std::endl << std::endl;
+        std::cout << "Failed to open file." << std::endl << std::endl;
         std::exit(1);
     }
 
