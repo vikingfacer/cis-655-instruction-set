@@ -43,6 +43,10 @@ public:
     void printPC();
     void printInstruction(uint16_t instruction);
     void printExecuting(uint16_t instruction);
+    std::vector<int> getAffectedRegisters(uint16_t instruction);
+    void printAffectedRegisterBefore(uint16_t instruction);
+    void printAffectedRegisterAfter(uint16_t instruction);
+    void printAligned(const std::string& label, const std::string& value);
     int execute(uint16_t instruction);
 
     void setPC(int newPC);
