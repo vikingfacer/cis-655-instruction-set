@@ -291,6 +291,162 @@ int ALU::execute(uint16_t instruction)
     return pc;
 }
 
+std::vector<int> ALU::getAffectedRegisters(uint16_t instruction) 
+{
+    std::vector<int> affectedRegisters;
+    uint8_t opcode = (instruction >> 12) & 0x0F;        // Extract opcode
+
+    switch (opcode) 
+    {
+        case 0b1010: // lci instruction
+        case 0b1011: // sci (Subtract Constant Immediate)
+        {
+            uint8_t dest = instruction & 0x0F;          // Destination register
+            affectedRegisters.push_back(dest);
+            break;
+        }
+        case 0b0000: // am (Add Memory)
+        case 0b0001: // sm (Subtract Memory)
+        case 0b0010: // mm (Multiply Memory)
+        case 0b0011: // dm (Divide Memory)
+        case 0b0101: // sltm (Set Less Than Memory)
+        case 0b0110: // ai (Add Immediate)
+        case 0b0111: // si (Subtract Immediate)
+        case 0b1000: // mi (Multiply Immediate)
+        case 0b1001: // di (Divide Immediate)
+        case 0b1100: // lo (Load using Offset)
+        case 0b1101: // so (Store using Offset)
+        {
+            uint8_t op1 = (instruction >> 8) & 0x0F;    // First operand
+            uint8_t op2 = (instruction >> 4) & 0x0F;    // Second operand
+            uint8_t dest = instruction & 0x0F;          // Destination register
+            affectedRegisters.push_back(op1);           // Source 1
+            affectedRegisters.push_back(op2);           // Source 2
+            affectedRegisters.push_back(dest);          // Destination
+            break;
+        }
+        default:
+            break; // No registers affected
+    }
+    
+    return affectedRegisters;
+}
+
+void ALU::printAligned(const std::string& label, const std::string& value) 
+{
+    const int regWidth = 20; 
+    const int valWidth = 0;
+
+    // Using fixed width for alignment
+    std::cout << std::left << std::setw(regWidth) << label 
+              << std::setw(valWidth) << "| " << value << std::endl;
+}
+
+void ALU::printAffectedRegisterBefore(uint16_t instruction) 
+{
+    std::vector<int> affectedRegisters = getAffectedRegisters(instruction);
+    uint8_t opcode = (instruction >> 12) & 0x0F;        // Extract opcode
+
+    std::cout << "---------------------------------------------" << std::endl;
+    std::cout << "BEFORE EXECUTION:" << std::endl;
+    std::cout << "---------------------------------------------" << std::endl;
+    std::cout << "MEMORY REGISTERS    | CONTENTS" << std::endl;
+    std::cout << "---------------------------------------------" << std::endl;
+
+    if (opcode == 0b0100 || opcode == 0b1110)
+    { 
+        printAligned("NO MEM REG AFFECTED", "NO MEM REG AFFECTED");
+    } else if (affectedRegisters.empty()) 
+    {
+        printAligned("CURR --> NULL", "NULL");
+    } else 
+    {
+        for (size_t i = 0; i < affectedRegisters.size(); ++i) 
+        {
+            int reg = affectedRegisters[i];
+            // Print previous register if applicable
+            if (reg > 0) 
+            {
+                printAligned("PREV --> M" + std::to_string(reg - 1), std::to_string(memory[reg - 1]));
+            } else 
+            {
+                printAligned("PREV --> NULL", "NULL");
+            }
+
+            // Print current register
+            printAligned("CURR --> M" + std::to_string(reg), std::to_string(memory[reg]));
+
+            // Print next register if applicable
+            if (reg < memory.size() - 1) 
+            {
+                printAligned("NEXT --> M" + std::to_string(reg + 1), std::to_string(memory[reg + 1]));
+            } else 
+            {
+                printAligned("NEXT --> NULL", "NULL");
+            }
+
+            // Add a line break only if there are more registers to print
+            if (i < affectedRegisters.size() - 1) {
+                std::cout << std::endl; // Add line break between entries
+            }
+        }
+    }
+        std::cout << "---------------------------------------------" << std::endl;
+}
+
+void ALU::printAffectedRegisterAfter(uint16_t instruction) 
+{
+    std::vector<int> affectedRegisters = getAffectedRegisters(instruction);
+    uint8_t opcode = (instruction >> 12) & 0x0F;        // Extract opcode
+
+    std::cout << "---------------------------------------------" << std::endl;
+    std::cout << "AFTER EXECUTION:" << std::endl;
+    std::cout << "---------------------------------------------" << std::endl;
+    std::cout << "MEMORY REGISTERS    | CONTENTS" << std::endl;
+    std::cout << "---------------------------------------------" << std::endl;
+
+    if (opcode == 0b0100 || opcode == 0b1110)
+    {
+        printAligned("NO MEM REG AFFECTED", "NO MEM REG AFFECTED");
+    } else if (affectedRegisters.empty()) 
+    {
+        printAligned("CURR --> NULL", "NULL");
+    } else 
+    {
+        for (size_t i = 0; i < affectedRegisters.size(); ++i) 
+        {
+            int reg = affectedRegisters[i];
+            // Print previous register if applicable
+            if (reg > 0) 
+            {
+                printAligned("PREV --> M" + std::to_string(reg - 1), std::to_string(memory[reg - 1]));
+            } else 
+            {
+                printAligned("PREV --> NULL", "NULL");
+            }
+
+            // Print current register
+            printAligned("CURR --> M" + std::to_string(reg), std::to_string(memory[reg]));
+
+            // Print next register if applicable
+            if (reg < memory.size() - 1) 
+            {
+                printAligned("NEXT --> M" + std::to_string(reg + 1), std::to_string(memory[reg + 1]));
+            } else 
+            {
+                printAligned("NEXT --> NULL", "NULL");
+            }
+
+            // Add a line break only if there are more registers to print
+            if (i < affectedRegisters.size() - 1) 
+            {
+                std::cout << std::endl;
+            }
+        }
+    }
+    std::cout << "---------------------------------------------" << std::endl;
+}
+
 void ALU::setPC(int newPC)
 {
     pc = newPC;
