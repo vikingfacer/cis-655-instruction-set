@@ -37,18 +37,18 @@ private:
 public:
     ALU(std::vector<uint16_t> &mem, int pcInit);
 
-    void printMemory();
-    void printInColumnsBinary(const std::vector<uint16_t> &list, int columns);
-    void printInColumnsDecimal(const std::vector<uint16_t> &list, int columns);
     void printPC();
-    void printInstruction(uint16_t instruction);
-    void printExecuting(uint16_t instruction);
-    std::vector<int> getAffectedRegisters(uint16_t instruction);
-    void printAffectedRegisterBefore(uint16_t instruction);
-    void printAffectedRegisterAfter(uint16_t instruction);
+    void printMemory();
     void printAligned(const std::string& label, const std::string& value);
-    int execute(uint16_t instruction);
+    void printInColumnsBinary(const std::vector<uint16_t> &list, int columns);
+    void printFirstHalfInColumnsBinary(const std::vector<uint16_t> &list, int columns);
+    void printInColumnsDecimal(const std::vector<uint16_t> &list, int columns);
+    void printFirstHalfInColumnsDecimal(const std::vector<uint16_t> &list, int columns);
+    void printInstruction(uint16_t instruction);
+    void printInstructionList(uint16_t instruction);
+    void printExecuting(uint16_t instruction);
 
+    int execute(uint16_t instruction);
     void setPC(int newPC);
     int getPC();
 

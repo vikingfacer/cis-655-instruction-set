@@ -174,6 +174,145 @@ int ALU::jb(uint8_t op1, uint8_t op2, uint8_t op3)
     return -(int(op1 + op2 + op3));
 }
 
+// Functions related to PC
+void ALU::setPC(int newPC)
+{
+    pc = newPC;
+}
+
+int ALU::getPC()
+{
+    return pc;
+}
+
+void ALU::printPC()
+{
+    std::cout << "CURRENT PC: " << pc << std::endl;
+}
+
+void ALU::printInstruction(uint16_t instruction)
+{
+    uint8_t opcode = (instruction >> 12) & 0x0F; // Extract bits [15:12]
+    uint8_t op1 = (instruction >> 8) & 0x0F;     // Extract bits [11:8]
+    uint8_t op2 = (instruction >> 4) & 0x0F;     // Extract bits [7:4]
+    uint8_t op3 = instruction & 0x0F;
+
+    std::cout << "INSTRUCTION (BINARY): " << std::bitset<4>(opcode) << " " << std::bitset<4>(op1) << " " << std::bitset<4>(op2) << " " << std::bitset<4>(op3) << std::endl;
+}
+
+void ALU::printAligned(const std::string& label, const std::string& value) 
+{
+    const int regWidth = 20; 
+    const int valWidth = 0;
+
+    // Using fixed width for alignment
+    std::cout << std::left << std::setw(regWidth) << label 
+              << std::setw(valWidth) << "| " << value << std::endl;
+}
+
+void ALU::printInstructionList(uint16_t instruction)
+{
+    // Bounds check for previous and next instructions
+    int prevIndex = (pc > 0) ? pc - 1 : -1;
+    int nextIndex = (pc < memory.size() - 1) ? pc + 1 : -1;
+
+    // Empty instructions
+    const uint16_t EMPTY_INSTRUCTION = 0x0000;
+
+    // Helper function to format 16-bit binary correctly
+    auto formatBinary = [](uint16_t value) 
+    {
+        std::bitset<16> bits(value);
+        std::string binaryStr = bits.to_string();
+        return binaryStr.substr(0, 4) + " " + 
+               binaryStr.substr(4, 4) + " " + 
+               binaryStr.substr(8, 4) + " " + 
+               binaryStr.substr(12, 4);
+    };
+
+    std::cout << "---------------------------------------------" << std::endl;
+    std::cout << "PROGRAM COUNTER     | CONTENTS (BINARY)" << std::endl;
+    std::cout << "---------------------------------------------" << std::endl;
+
+    // Print previous instruction
+    if (prevIndex != -1 && memory[prevIndex] != EMPTY_INSTRUCTION) 
+    {
+        printAligned("PREV --> " + std::to_string(prevIndex), formatBinary(memory[prevIndex]));
+    } else 
+    {
+        printAligned("PREV --> " + (prevIndex != -1 ? std::to_string(prevIndex) : "NONE"), "NO INSTRUCTION");
+    }
+    // Print current instruction
+    if (memory[pc] != EMPTY_INSTRUCTION) 
+    {
+        printAligned("CURR --> " + std::to_string(pc), formatBinary(memory[pc]));
+    } else 
+    {
+        printAligned("CURR --> " + std::to_string(pc), "NO INSTRUCTION");
+    }
+
+    // Print next instruction
+    if (nextIndex != -1 && memory[nextIndex] != EMPTY_INSTRUCTION) 
+    {
+        printAligned("NEXT --> " + std::to_string(nextIndex), formatBinary(memory[nextIndex]));
+    } else 
+    {
+        printAligned("NEXT --> " + (nextIndex != -1 ? std::to_string(nextIndex) : "NONE"), "NO INSTRUCTION");
+    }
+}
+
+// execute(0000 0000 0000 0000)
+int ALU::execute(uint16_t instruction)
+{
+    uint8_t opcode = (instruction >> 12) & 0x0F; // Extract bits [15:12]
+    uint8_t op1 = (instruction >> 8) & 0x0F;     // Extract bits [11:8]
+    uint8_t op2 = (instruction >> 4) & 0x0F;     // Extract bits [7:4]
+    uint8_t op3 = instruction & 0x0F;
+
+    if (opcode >= 0 && opcode < functions.size())
+    {
+        pc += functions[opcode](op1, op2, op3);
+    }
+    else
+    {
+        throw std::invalid_argument("Error: Invalid opcode." + std::to_string(opcode));
+    }
+
+    return pc;
+}
+
+void ALU::printExecuting(uint16_t instruction)
+{
+    uint8_t opcode = (instruction >> 12) & 0x0F; // Extract bits [15:12]
+    uint8_t op1 = (instruction >> 8) & 0x0F;     // Extract bits [11:8]
+    uint8_t op2 = (instruction >> 4) & 0x0F;     // Extract bits [7:4]
+    uint8_t op3 = instruction & 0x0F;
+
+    if (opcode == 0b1110)
+    {
+        std::cout << "CURRENT INSTRUCTION:  " << OPCODES[opcode] << " " << std::to_string(op1) << " " << std::to_string(op2) << " " << std::to_string(op3) << std::endl;
+        return;
+    }
+    else if (opcode == 0b1010 || opcode == 0b1011)
+    {
+        std::cout << "CURRENT INSTRUCTION:  " << OPCODES[opcode] << " " << std::to_string(op1) << " " << std::to_string(op2) << " " << MEMORY_REGISTERS[op3] << std::endl;
+        return;
+    }
+    else if (opcode == 0b0110 || opcode == 0b0111 || opcode == 0b1000 || opcode == 0b1001)
+    {
+        std::cout << "CURRENT INSTRUCTION:  " << OPCODES[opcode] << " " << MEMORY_REGISTERS[op1] << " " << std::to_string(op2) << " " << MEMORY_REGISTERS[op3] << std::endl;
+        return;
+    }
+    else if (opcode == 0b0100)
+    {
+        std::cout << "CURRENT INSTRUCTION:  " << OPCODES[opcode] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << std::to_string(op3) << std::endl;
+        return;
+    }
+
+    std::cout << "CURRENT INSTRUCTION:  " << OPCODES[opcode] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << MEMORY_REGISTERS[op3] << std::endl;
+}
+
+// Functions to Print Memory and Contents (if needed)
 void ALU::printMemory()
 {
     int c = 0;
@@ -217,7 +356,6 @@ void ALU::printInColumnsDecimal(const std::vector<uint16_t> &list, int columns)
             int index = i + j * rows;
             if (index < list.size())
             {
-                // print the 16 bit number in binary
                 std::cout << std::setw(3) << index << " : " << std::setw(6) << list[index] << " | ";
             }
         }
@@ -225,234 +363,56 @@ void ALU::printInColumnsDecimal(const std::vector<uint16_t> &list, int columns)
     }
 }
 
-void ALU::printPC()
+void ALU::printFirstHalfInColumnsBinary(const std::vector<uint16_t> &list, int columns)
 {
-    std::cout << "PC: " << pc << std::endl;
-}
-
-void ALU::printInstruction(uint16_t instruction)
-{
-    uint8_t opcode = (instruction >> 12) & 0x0F; // Extract bits [15:12]
-    uint8_t op1 = (instruction >> 8) & 0x0F;     // Extract bits [11:8]
-    uint8_t op2 = (instruction >> 4) & 0x0F;     // Extract bits [7:4]
-    uint8_t op3 = instruction & 0x0F;
-
-    std::cout << "OPCODE: " << std::bitset<4>(opcode) << " " << std::bitset<4>(op1) << " " << std::bitset<4>(op2) << " " << std::bitset<4>(op3) << std::endl;
-}
-
-void ALU::printExecuting(uint16_t instruction)
-{
-    uint8_t opcode = (instruction >> 12) & 0x0F; // Extract bits [15:12]
-    uint8_t op1 = (instruction >> 8) & 0x0F;     // Extract bits [11:8]
-    uint8_t op2 = (instruction >> 4) & 0x0F;     // Extract bits [7:4]
-    uint8_t op3 = instruction & 0x0F;
-
-    if (opcode == 0b1110)
-    {
-        std::cout << "EXECUTING: " << OPCODES[opcode] << " " << std::to_string(op1) << " " << std::to_string(op2) << " " << std::to_string(op3) << std::endl;
-        return;
-    }
-    else if (opcode == 0b1010 || opcode == 0b1011)
-    {
-        std::cout << "EXECUTING: " << OPCODES[opcode] << " " << std::to_string(op1) << " " << std::to_string(op2) << " " << MEMORY_REGISTERS[op3] << std::endl;
-        return;
-    }
-    else if (opcode == 0b0110 || opcode == 0b0111 || opcode == 0b1000 || opcode == 0b1001)
-    {
-        std::cout << "EXECUTING: " << OPCODES[opcode] << " " << MEMORY_REGISTERS[op1] << " " << std::to_string(op2) << " " << MEMORY_REGISTERS[op3] << std::endl;
-        return;
-    }
-    else if (opcode == 0b0100)
-    {
-        std::cout << "EXECUTING: " << OPCODES[opcode] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << std::to_string(op3) << std::endl;
-        return;
-    }
-
-    std::cout << "EXECUTING: " << OPCODES[opcode] << " " << MEMORY_REGISTERS[op1] << " " << MEMORY_REGISTERS[op2] << " " << MEMORY_REGISTERS[op3] << std::endl;
-}
-
-// execute(0000 0000 0000 0000)
-int ALU::execute(uint16_t instruction)
-{
-    uint8_t opcode = (instruction >> 12) & 0x0F; // Extract bits [15:12]
-    uint8_t op1 = (instruction >> 8) & 0x0F;     // Extract bits [11:8]
-    uint8_t op2 = (instruction >> 4) & 0x0F;     // Extract bits [7:4]
-    uint8_t op3 = instruction & 0x0F;
-
-    if (opcode >= 0 && opcode < functions.size())
-    {
-        pc += functions[opcode](op1, op2, op3);
-    }
-    else
-    {
-        throw std::invalid_argument("Error: Invalid opcode." + std::to_string(opcode));
-    }
-
-    return pc;
-}
-
-std::vector<int> ALU::getAffectedRegisters(uint16_t instruction) 
-{
-    std::vector<int> affectedRegisters;
-    uint8_t opcode = (instruction >> 12) & 0x0F;        // Extract opcode
-
-    switch (opcode) 
-    {
-        case 0b1010: // lci instruction
-        case 0b1011: // sci (Subtract Constant Immediate)
-        {
-            uint8_t dest = instruction & 0x0F;          // Destination register
-            affectedRegisters.push_back(dest);
-            break;
-        }
-        case 0b0000: // am (Add Memory)
-        case 0b0001: // sm (Subtract Memory)
-        case 0b0010: // mm (Multiply Memory)
-        case 0b0011: // dm (Divide Memory)
-        case 0b0101: // sltm (Set Less Than Memory)
-        case 0b0110: // ai (Add Immediate)
-        case 0b0111: // si (Subtract Immediate)
-        case 0b1000: // mi (Multiply Immediate)
-        case 0b1001: // di (Divide Immediate)
-        case 0b1100: // lo (Load using Offset)
-        case 0b1101: // so (Store using Offset)
-        {
-            uint8_t op1 = (instruction >> 8) & 0x0F;    // First operand
-            uint8_t op2 = (instruction >> 4) & 0x0F;    // Second operand
-            uint8_t dest = instruction & 0x0F;          // Destination register
-            affectedRegisters.push_back(op1);           // Source 1
-            affectedRegisters.push_back(op2);           // Source 2
-            affectedRegisters.push_back(dest);          // Destination
-            break;
-        }
-        default:
-            break; // No registers affected
-    }
-    
-    return affectedRegisters;
-}
-
-void ALU::printAligned(const std::string& label, const std::string& value) 
-{
-    const int regWidth = 20; 
-    const int valWidth = 0;
-
-    // Using fixed width for alignment
-    std::cout << std::left << std::setw(regWidth) << label 
-              << std::setw(valWidth) << "| " << value << std::endl;
-}
-
-void ALU::printAffectedRegisterBefore(uint16_t instruction) 
-{
-    std::vector<int> affectedRegisters = getAffectedRegisters(instruction);
-    uint8_t opcode = (instruction >> 12) & 0x0F;        // Extract opcode
+    int halfMem = list.size() / 2;
+    int rows = (halfMem + columns - 1) / columns;
 
     std::cout << "---------------------------------------------" << std::endl;
-    std::cout << "BEFORE EXECUTION:" << std::endl;
-    std::cout << "---------------------------------------------" << std::endl;
-    std::cout << "MEMORY REGISTERS    | CONTENTS" << std::endl;
+    std::cout << "               MEMORY TABLE                  " << std::endl;
     std::cout << "---------------------------------------------" << std::endl;
 
-    if (opcode == 0b0100 || opcode == 0b1110)
-    { 
-        printAligned("NO MEM REG AFFECTED", "NO MEM REG AFFECTED");
-    } else if (affectedRegisters.empty()) 
+    for (int i = 0; i < rows; ++i) 
     {
-        printAligned("CURR --> NULL", "NULL");
-    } else 
-    {
-        for (size_t i = 0; i < affectedRegisters.size(); ++i) 
+        for (int j = 0; j < columns; ++j) 
         {
-            int reg = affectedRegisters[i];
-            // Print previous register if applicable
-            if (reg > 0) 
+            int index = i + j * rows;
+            if (index < halfMem) 
             {
-                printAligned("PREV --> M" + std::to_string(reg - 1), std::to_string(memory[reg - 1]));
-            } else 
-            {
-                printAligned("PREV --> NULL", "NULL");
-            }
-
-            // Print current register
-            printAligned("CURR --> M" + std::to_string(reg), std::to_string(memory[reg]));
-
-            // Print next register if applicable
-            if (reg < memory.size() - 1) 
-            {
-                printAligned("NEXT --> M" + std::to_string(reg + 1), std::to_string(memory[reg + 1]));
-            } else 
-            {
-                printAligned("NEXT --> NULL", "NULL");
-            }
-
-            // Add a line break only if there are more registers to print
-            if (i < affectedRegisters.size() - 1) {
-                std::cout << std::endl; // Add line break between entries
+                std::cout << std::setw(2) << index << " : " << std::setw(4) << std::bitset<16>(list[index]);
+                if (j < columns - 1) 
+                {
+                    std::cout << " | ";
+                }
             }
         }
+        std::cout << std::endl;
     }
-        std::cout << "---------------------------------------------" << std::endl;
 }
 
-void ALU::printAffectedRegisterAfter(uint16_t instruction) 
+void ALU::printFirstHalfInColumnsDecimal(const std::vector<uint16_t> &list, int columns)
 {
-    std::vector<int> affectedRegisters = getAffectedRegisters(instruction);
-    uint8_t opcode = (instruction >> 12) & 0x0F;        // Extract opcode
+    int halfMem = list.size() / 2;
+    int rows = (halfMem + columns - 1) / columns;
 
     std::cout << "---------------------------------------------" << std::endl;
-    std::cout << "AFTER EXECUTION:" << std::endl;
-    std::cout << "---------------------------------------------" << std::endl;
-    std::cout << "MEMORY REGISTERS    | CONTENTS" << std::endl;
+    std::cout << "               MEMORY TABLE                  " << std::endl;
     std::cout << "---------------------------------------------" << std::endl;
 
-    if (opcode == 0b0100 || opcode == 0b1110)
+    for (int i = 0; i < rows; ++i) 
     {
-        printAligned("NO MEM REG AFFECTED", "NO MEM REG AFFECTED");
-    } else if (affectedRegisters.empty()) 
-    {
-        printAligned("CURR --> NULL", "NULL");
-    } else 
-    {
-        for (size_t i = 0; i < affectedRegisters.size(); ++i) 
+        for (int j = 0; j < columns; ++j) 
         {
-            int reg = affectedRegisters[i];
-            // Print previous register if applicable
-            if (reg > 0) 
+            int index = i + j * rows;
+            if (index < halfMem) 
             {
-                printAligned("PREV --> M" + std::to_string(reg - 1), std::to_string(memory[reg - 1]));
-            } else 
-            {
-                printAligned("PREV --> NULL", "NULL");
-            }
-
-            // Print current register
-            printAligned("CURR --> M" + std::to_string(reg), std::to_string(memory[reg]));
-
-            // Print next register if applicable
-            if (reg < memory.size() - 1) 
-            {
-                printAligned("NEXT --> M" + std::to_string(reg + 1), std::to_string(memory[reg + 1]));
-            } else 
-            {
-                printAligned("NEXT --> NULL", "NULL");
-            }
-
-            // Add a line break only if there are more registers to print
-            if (i < affectedRegisters.size() - 1) 
-            {
-                std::cout << std::endl;
+                std::cout << std::setw(3) << index << " : " << std::setw(13) << list[index];
+                if (j < columns - 1) 
+                {
+                    std::cout << " | ";
+                }
             }
         }
+        std::cout << std::endl;
     }
-    std::cout << "---------------------------------------------" << std::endl;
-}
-
-void ALU::setPC(int newPC)
-{
-    pc = newPC;
-}
-
-int ALU::getPC()
-{
-    return pc;
 }
