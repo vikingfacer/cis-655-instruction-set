@@ -1,6 +1,5 @@
-# include "alu.h"
-# include "parser.h"
-# Need to use parser to get instructions from .txt files instead
+#include "alu.h"
+
 int main() {
     std::vector<uint16_t> instructions = {
         0b1010000010000000, // lci 0, 8, M0         // m0 max store first element to start
@@ -49,44 +48,61 @@ int main() {
         mainMemory[alu.getPC() + i] = instructions[i];
     }
 
-    std::cout << "pc from " << pcInit << " to " << (pcInit + instructions.size() - 1) << std::endl;
+    // std::cout << "pc from " << pcInit << " to " << (pcInit + instructions.size() - 1) << std::endl;
+    // alu.printInColumnsBinary(mainMemory, 4);
+    // alu.printPC();
 
-    alu.printInColumnsBinary(mainMemory, 4);
-    alu.printPC();
+    std::cout << "\n+++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+    std::cout << "+            PRESS ENTER TO BEGIN           +" << std::endl;
+    std::cout << "+++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+    std::string input;
+    std::getline(std::cin, input);
 
     while (alu.getPC() < (pcInit + instructions.size())) {
-        std::cout << "\n+++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-        std::cout << "PRESS ENTER TO CONTINUE..." << std::endl;
-        std::cout << "+++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-        std::string input;
-        std::getline(std::cin, input);
+        // Information before execution
+        std::cout << "---------------------------------------------" << std::endl;
+        std::cout << "              BEFORE EXECUTION:              " << std::endl;
+        std::cout << "---------------------------------------------" << std::endl;
 
-        // Print current instruction
+        // Print PC and current instruction (human readable)
+        alu.printPC();
         alu.printExecuting(mainMemory[alu.getPC()]);
-        alu.printInstruction(mainMemory[alu.getPC()]);
 
-        // Print affected register(s) before execution
-        alu.printAffectedRegisterBefore(mainMemory[alu.getPC()]);
+        // Print neighboring instructions
+        alu.printInstructionList(mainMemory[alu.getPC()]);
 
-        std::cout << "\n+++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-        std::cout << "PRESS ENTER TO EXECUTE THE INSTRUCTION..." << std::endl;
-        std::cout << "+++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-        std::getline(std::cin, input);
+        // Show current memory state
+        // alu.printFirstHalfInColumnsBinary(mainMemory, 2);
+        alu.printFirstHalfInColumnsDecimal(mainMemory, 2);
+        std::cout << "---------------------------------------------" << std::endl;
 
-        // Store the current instruction
-        uint16_t currentInstruction = mainMemory[alu.getPC()];
 
         // Execute the instruction
+        std::cout << "\n++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+        std::cout << "+   PRESS ENTER TO EXECUTE THE INSTRUCTION   +" << std::endl;
+        std::cout << "++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+        std::getline(std::cin, input);
+
         alu.execute(mainMemory[alu.getPC()]);
 
-        // Print affected register(s) after execution
-        alu.printAffectedRegisterAfter(currentInstruction);
-
-        // Print Memory Table (if needed)
-        // alu.printInColumnsDecimal(mainMemory, 4);
-        alu.printPC();
+        // Information after execution
         std::cout << "---------------------------------------------" << std::endl;
-    }
+        std::cout << "              AFTER EXECUTION:               " << std::endl;
+        std::cout << "---------------------------------------------" << std::endl;
+        
+        alu.printPC();
 
+        alu.printInstructionList(mainMemory[alu.getPC()]);
+
+        // alu.printFirstHalfInColumnsBinary(mainMemory, 2);
+        alu.printFirstHalfInColumnsDecimal(mainMemory, 2);
+        std::cout << "---------------------------------------------" << std::endl;
+
+        // Continue to next instruction
+        std::cout << "\n+++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+        std::cout << "+           PRESS ENTER TO CONTINUE         +" << std::endl;
+        std::cout << "+++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+        std::getline(std::cin, input);
+    }
     return 0;
 }
