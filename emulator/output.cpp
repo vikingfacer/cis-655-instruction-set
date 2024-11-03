@@ -72,8 +72,8 @@ int main() {
         alu.printInstructionList(mainMemory[alu.getPC()]);
 
         // Show current memory state
-        // alu.printFirstHalfInColumnsBinary(mainMemory, 2);
-        alu.printFirstHalfInColumnsDecimal(mainMemory, 2);
+        alu.printFirstHalfInColumnsBinary(mainMemory, 2);
+        // alu.printFirstHalfInColumnsDecimal(mainMemory, 2);
         std::cout << "---------------------------------------------" << std::endl;
 
 
@@ -94,8 +94,8 @@ int main() {
 
         alu.printInstructionList(mainMemory[alu.getPC()]);
 
-        // alu.printFirstHalfInColumnsBinary(mainMemory, 2);
-        alu.printFirstHalfInColumnsDecimal(mainMemory, 2);
+        alu.printFirstHalfInColumnsBinary(mainMemory, 2);
+        // alu.printFirstHalfInColumnsDecimal(mainMemory, 2);
         std::cout << "---------------------------------------------" << std::endl;
 
         // Continue to next instruction
