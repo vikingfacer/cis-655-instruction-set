@@ -9,8 +9,12 @@
 #include "parser.h"
 
 uint16_t byteSwap(uint16_t src) {
-  uint16_t lower = src & 0x00FF;
-  uint16_t upper = src & 0xFF00;
+  uint16_t q1 = src & 0xF000;
+  uint16_t q2 = src & 0x0F00;
+  uint16_t upper = (q1 >> 4) | (q2 << 4);
+  uint16_t q3 = src & 0x00F0;
+  uint16_t q4 = src & 0x000F;
+  uint16_t lower = (q3 >> 4) | (q4 << 4);
   return (lower << 8) | (upper >> 8);
 }
 void runALU(std::vector<uint16_t> &mainMemory, int pcInit, int programSize);
